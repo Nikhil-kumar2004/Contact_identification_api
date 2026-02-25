@@ -11,8 +11,8 @@ app.post("/", async (req, res) => {
       return res.status(400).json({ error: "Email or phone required" });
 
     let contacts = await Contact
-  .find({ $or: [{ email: email }, { phoneNumber: phoneNumber }] })
-  .sort("createdAt");
+    .find({ $or: [{ email: email }, { phoneNumber: phoneNumber }] })
+    .sort("createdAt");
 
     if (contacts.length === 0) {
       const newContact = await Contact.create({
@@ -20,7 +20,6 @@ app.post("/", async (req, res) => {
         phoneNumber,
         linkPrecedence: "primary"
       });
-
       return res.json({
         contact: {
           primaryContatctId: newContact._id,
