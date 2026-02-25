@@ -10,9 +10,9 @@ app.post("/", async (req, res) => {
     if (!email && !phoneNumber)
       return res.status(400).json({ error: "Email or phone required" });
 
-    let contacts = await Contact.find({
-      $or: [{ email }, { phoneNumber }]
-    }).sort({ createdAt: 1 });
+    let contacts = await Contact
+  .find({ $or: [{ email: email }, { phoneNumber: phoneNumber }] })
+  .sort("createdAt");
 
     if (contacts.length === 0) {
       const newContact = await Contact.create({
@@ -34,11 +34,11 @@ app.post("/", async (req, res) => {
     let relatedIds = contacts.map(c => c._id);
 
     let allRelated = await Contact.find({
-      $or: [
-        { _id: { $in: relatedIds } },
-        { linkedId: { $in: relatedIds } }
-      ]
-    }).sort({ createdAt: 1 });
+        $or: [
+            { _id: { $in: relatedIds } },
+            { linkedId: { $in: relatedIds } }
+        ]
+        }).sort({ createdAt: 1 });
 
     let primary = allRelated.find(c => c.linkPrecedence === "primary");
 
