@@ -2,7 +2,6 @@ const express = require("express");
 const app = express();
 const Contact = require("../models/Contact");
 
-
 app.post("/", async (req, res) => {
   try {
     let { email, phoneNumber } = req.body;
@@ -10,9 +9,9 @@ app.post("/", async (req, res) => {
     if (!email && !phoneNumber)
       return res.status(400).json({ error: "Email or phone required" });
 
-    let contacts = await Contact
-    .find({ $or: [{ email: email }, { phoneNumber: phoneNumber }] })
-    .sort("createdAt");
+    let contacts = await Contact.find({
+      $or: [{ email }, { phoneNumber }]
+    }).sort({ createdAt: 1 });
 
     if (contacts.length === 0) {
       const newContact = await Contact.create({
@@ -20,6 +19,7 @@ app.post("/", async (req, res) => {
         phoneNumber,
         linkPrecedence: "primary"
       });
+
       return res.json({
         contact: {
           primaryContatctId: newContact._id,
@@ -33,11 +33,11 @@ app.post("/", async (req, res) => {
     let relatedIds = contacts.map(c => c._id);
 
     let allRelated = await Contact.find({
-        $or: [
-            { _id: { $in: relatedIds } },
-            { linkedId: { $in: relatedIds } }
-        ]
-        }).sort({ createdAt: 1 });
+      $or: [
+        { _id: { $in: relatedIds } },
+        { linkedId: { $in: relatedIds } }
+      ]
+    }).sort({ createdAt: 1 });
 
     let primary = allRelated.find(c => c.linkPrecedence === "primary");
 
